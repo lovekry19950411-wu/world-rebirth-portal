@@ -13,14 +13,12 @@ export default function Home() {
 
   useEffect(() => { setMounted(true); }, []);
 
-  // 1. World ID 驗證成功：解鎖信箱與轉盤
   const handleVerifySuccess = (result: ISuccessResult) => {
     setNullifier(result.nullifier_hash.substring(0, 10) + "...");
     setIsVerified(true);
     setMessage('✅ 真人身分確認！信箱登記與轉盤功能已解鎖。');
   };
 
-  // 2. 信箱登記邏輯
   const handleEmailSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!isVerified) return setMessage('❌ 請先執行重生驗證');
@@ -28,7 +26,6 @@ export default function Home() {
     setMessage(`📧 信箱 ${email} 已與 WLD-ID 綁定成功！`);
   };
 
-  // 3. 幸運轉盤邏輯
   const startSpin = () => {
     if (!isVerified) return setMessage('❌ 只有驗證過的真人才可抽取重生能量');
     setIsSpinning(true);
@@ -51,7 +48,6 @@ export default function Home() {
       <main style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', padding: '20px' }}>
         <div style={{ width: '100%', maxWidth: '450px', background: 'rgba(15, 17, 26, 0.95)', border: '1px solid rgba(59,130,246,0.2)', borderRadius: '40px', padding: '40px', boxShadow: '0 0 50px rgba(0,0,0,0.5)' }}>
           
-          {/* 頂部身分欄 */}
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '40px' }}>
             <div>
               <h1 style={{ fontSize: '20px', fontWeight: 900 }}>SAPPHIRE <span style={{ color: '#3b82f6' }}>REBORN</span></h1>
@@ -63,10 +59,10 @@ export default function Home() {
             </div>
           </div>
 
-          {/* 第一步：World ID 驗證 (已修正 TypeScript 類型報錯) */}
           <section style={{ marginBottom: '30px' }}>
+            {/* 這裡已換成正式 Production ID，解決「找不到要求」的問題 */}
             <IDKitWidget
-              app_id="app_staging_083652c77605f6396f4244031649646b"
+              app_id="app_083652c77605f6396f4244031649646b" 
               action="reborn-verify"
               onSuccess={handleVerifySuccess}
               verification_level={VerificationLevel.Device}
@@ -83,7 +79,6 @@ export default function Home() {
             </IDKitWidget>
           </section>
 
-          {/* 第二步：信箱登記 */}
           <section style={{ marginBottom: '30px', opacity: isVerified ? 1 : 0.3 }}>
             <form onSubmit={handleEmailSubmit} style={{ display: 'flex', gap: '10px' }}>
               <input 
@@ -97,14 +92,13 @@ export default function Home() {
               <button 
                 type="submit" 
                 disabled={!isVerified} 
-                style={{ padding: '0 20px', backgroundColor: isVerified ? '#3b82f6' : '#1e293b', borderRadius: '12px', border: 'none', color: 'white', cursor: isVerified ? 'pointer' : 'default' }}
+                style={{ padding: '0 20px', backgroundColor: isVerified ? '#3b82f6' : '#1e293b', borderRadius: '12px', border: 'none', color: 'white' }}
               >
                 提交
               </button>
             </form>
           </section>
 
-          {/* 第三步：幸運轉盤 */}
           <section style={{ textAlign: 'center', background: 'rgba(59,130,246,0.05)', padding: '30px', borderRadius: '25px', opacity: isVerified ? 1 : 0.3 }}>
             <div style={{ fontSize: '50px', marginBottom: '20px', animation: isSpinning ? 'spin 1s infinite linear' : 'none', display: 'inline-block' }}>
               {isSpinning ? '🌀' : '💎'}
@@ -112,20 +106,18 @@ export default function Home() {
             <button 
               onClick={startSpin} 
               disabled={!isVerified || isSpinning} 
-              style={{ width: '100%', padding: '15px', background: isVerified ? 'linear-gradient(90deg, #3b82f6, #2563eb)' : '#1e293b', border: 'none', borderRadius: '12px', color: 'white', fontWeight: 900, cursor: (isVerified && !isSpinning) ? 'pointer' : 'default' }}
+              style={{ width: '100%', padding: '15px', background: isVerified ? 'linear-gradient(90deg, #3b82f6, #2563eb)' : '#1e293b', border: 'none', borderRadius: '12px', color: 'white', fontWeight: 900 }}
             >
               {isSpinning ? '能量抽取中...' : '2. 啟動能量轉盤'}
             </button>
           </section>
 
-          {/* 救援連結 */}
           <div style={{ marginTop: '30px', textAlign: 'center' }}>
             <a href="https://giveth.io/project/starmaker-taiwan-on-chain-emergency-relief" target="_blank" rel="noopener noreferrer" style={{ color: '#475569', fontSize: '10px', textDecoration: 'none' }}>
               🌐 查看鏈上救援網絡節點
             </a>
           </div>
 
-          {/* 訊息反饋 */}
           <div style={{ height: '40px', marginTop: '20px' }}>
             {message && (
               <div style={{ padding: '12px', backgroundColor: 'rgba(59,130,246,0.1)', borderRadius: '10px', fontSize: '11px', textAlign: 'center', color: '#93c5fd' }}>
