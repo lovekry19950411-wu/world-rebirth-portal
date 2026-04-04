@@ -26,15 +26,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     await sheet.addRow({
       Time: new Date().toLocaleString('zh-TW', { timeZone: 'Asia/Taipei' }),
       Email: email || 'Anonymous',
-      Status: isSapphire ? '藍寶石會員' : '普通會員',
+      Status: isSapphire ? '藍寶石' : '普通',
       Result: isWin ? '中獎' : '沒中獎',
-      Prize: prize,
-      Hash: `PROB_${winChance}_RAND_${random.toFixed(4)}`
+      Prize: prize
     });
 
-    return res.status(200).json({ win: isWin, prize, message: isWin ? `恭喜獲得 ${prize} 寶石` : '下次再試試' });
+    return res.status(200).json({ win: isWin, prize });
   } catch (err: any) {
-    console.error(err);
-    return res.status(500).json({ message: 'Error', error: err.message });
+    return res.status(500).json({ error: err.message });
   }
 }
