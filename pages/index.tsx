@@ -3,14 +3,26 @@ import React, { useState, useEffect } from 'react';
 export default function Home() {
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
-  const [points, setPoints] = useState('---'); // 模擬讀取分數
+  const [points, setPoints] = useState<number | string>('...'); 
   const [email] = useState('lovekry19950411@gmail.com');
+
+  // 模擬從 Google Sheets 獲取積分
+  useEffect(() => {
+    const fetchPoints = async () => {
+      try {
+        const res = await fetch(`/api/get-points?email=${email}`);
+        const data = await res.json();
+        setPoints(data.points || 100); // 如果沒讀到，暫時顯示 100
+      } catch {
+        setPoints(100); 
+      }
+    };
+    fetchPoints();
+  }, [email]);
 
   const handleLottery = async () => {
     setLoading(true);
-    setMessage('🔮 正在感應 World Chain 節點...');
-    
-    // 延遲 1.5 秒增加儀式感
+    setMessage('⚡ 正在連線 World Chain 驗證節點...');
     setTimeout(async () => {
       try {
         const res = await fetch('/api/lottery', {
@@ -19,77 +31,98 @@ export default function Home() {
           body: JSON.stringify({ email, isSapphire: true }),
         });
         const data = await res.json();
-        setMessage(data.win ? `🎊 成功中獎！獲得 ${data.prize} 藍寶石！` : '😢 能量感應較弱，這次未中獎。');
+        setMessage(data.win ? `🟢 驗證成功：獲得 ${data.prize} 藍寶石能量` : '🔴 能量不足：本次未中獎');
         setLoading(false);
       } catch (err) {
-        setMessage('❌ 連線失敗');
+        setMessage('❌ 系統異常');
         setLoading(false);
       }
-    }, 1500);
+    }, 1200);
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-[#020617] text-white p-6 font-sans">
-      <div className="max-w-md w-full bg-[#0f172a] border border-blue-500/30 rounded-[2.5rem] p-8 shadow-[0_0_50px_rgba(30,58,138,0.5)]">
-        
-        {/* 頂部：身份與分數 */}
-        <div className="flex justify-between items-center mb-10 bg-blue-950/40 p-4 rounded-2xl border border-blue-400/20">
-          <div className="text-left">
-            <p className="text-blue-400 text-[10px] font-black uppercase tracking-widest">ID Verified</p>
-            <p className="text-xs font-mono opacity-60">{email.split('@')[0]}...</p>
-          </div>
-          <div className="text-right">
-            <p className="text-blue-400 text-[10px] font-black uppercase tracking-widest">Current Points</p>
-            <p className="text-xl font-black text-cyan-400">{points} PTS</p>
-          </div>
-        </div>
+    <div className="min-h-screen bg-[#05070a] text-[#e2e8f0] flex flex-col items-center justify-center p-4 font-mono">
+      {/* 背景裝飾 */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-orange-500/5 blur-[120px] rounded-full"></div>
+        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-500/5 blur-[120px] rounded-full"></div>
+      </div>
 
-        {/* 中間：主標題 */}
-        <h1 className="text-3xl font-black text-center mb-2 bg-gradient-to-b from-white to-blue-400 bg-clip-text text-transparent">
-          SAPPHIRE PORTAL
-        </h1>
-        <p className="text-center text-blue-300/50 text-xs tracking-[0.2em] mb-10 font-bold">重生者專屬能量轉盤</p>
-
-        {/* 抽獎區 */}
-        <div className="relative group mb-10">
-          <div className={`text-6xl text-center mb-6 transition-all duration-500 ${loading ? 'animate-spin scale-110' : 'animate-bounce'}`}>
-            {loading ? '🌀' : '💎'}
-          </div>
+      <div className="relative w-full max-w-lg">
+        {/* 外框 */}
+        <div className="bg-[#0f111a] border border-white/10 rounded-2xl p-8 shadow-2xl backdrop-blur-md">
           
-          <button 
-            onClick={handleLottery}
-            disabled={loading}
-            className={`w-full py-5 rounded-2xl font-black transition-all ${
-              loading 
-              ? 'bg-slate-700 cursor-not-allowed' 
-              : 'bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 shadow-[0_0_30px_rgba(37,99,235,0.4)] active:scale-95'
-            }`}
-          >
-            {loading ? '處理中...' : '啟動重生感應'}
-          </button>
+          {/* 頭部：BTC 科技感儀表板 */}
+          <div className="flex justify-between items-start mb-8 border-b border-white/5 pb-6">
+            <div>
+              <h1 className="text-xl font-black tracking-tighter text-white">
+                WU SHENG-PING <span className="text-orange-500">ZH</span>
+              </h1>
+              <p className="text-[10px] text-slate-500 mt-1 uppercase tracking-[0.2em]">Reborn Protocol v2.0</p>
+            </div>
+            <div className="text-right">
+              <p className="text-[10px] text-orange-500 font-bold uppercase tracking-widest mb-1">Live Balance</p>
+              <p className="text-2xl font-black text-white leading-none">{points} <span className="text-xs text-slate-500">PTS</span></p>
+            </div>
+          </div>
 
+          {/* 用戶資訊 */}
+          <div className="bg-white/5 rounded-xl p-4 mb-8 border border-white/5">
+            <div className="flex items-center justify-between text-[10px] mb-2 text-slate-400">
+              <span>OPERATOR ID</span>
+              <span className="text-green-500 text-[8px] border border-green-500/50 px-2 py-0.5 rounded">AUTHENTICATED</span>
+            </div>
+            <p className="text-sm font-bold text-slate-200">{email}</p>
+          </div>
+
+          {/* 轉盤核心區 */}
+          <div className="py-10 text-center relative">
+            <div className={`text-7xl mb-6 inline-block transition-all duration-700 ${loading ? 'animate-spin opacity-50' : 'drop-shadow-[0_0_15px_rgba(249,115,22,0.4)]'}`}>
+              {loading ? '⚙️' : '💎'}
+            </div>
+            <h2 className="text-lg font-bold mb-1">藍寶石重生輪盤</h2>
+            <p className="text-xs text-slate-500 mb-8 font-bold italic">PROBABILISTIC REWARD SYSTEM</p>
+
+            <button 
+              onClick={handleLottery}
+              disabled={loading}
+              className={`w-full py-4 rounded-lg font-black transition-all border ${
+                loading 
+                ? 'bg-transparent border-white/10 text-slate-600' 
+                : 'bg-orange-500 hover:bg-orange-600 text-black border-orange-400 shadow-[0_0_20px_rgba(249,115,22,0.3)] active:scale-[0.98]'
+              }`}
+            >
+              {loading ? 'CONNECTING TO CHAIN...' : 'EXECUTE LOTTERY'}
+            </button>
+          </div>
+
+          {/* 狀態訊息 */}
           {message && (
-            <div className="mt-6 p-4 bg-black/40 rounded-xl text-sm border border-blue-900/30 text-blue-200 text-center animate-fade-in">
+            <div className="mt-4 p-4 bg-black/60 rounded-lg border border-white/10 text-xs font-bold text-center animate-pulse">
               {message}
             </div>
           )}
+
+          {/* 功能入口 */}
+          <div className="grid grid-cols-2 gap-3 mt-10">
+            <a href="#" className="flex flex-col items-center justify-center p-4 bg-white/5 border border-white/5 rounded-xl hover:bg-white/10 transition-all">
+              <span className="text-lg mb-1">📊</span>
+              <span className="text-[10px] font-bold text-slate-400">OTC TRADE</span>
+            </a>
+            <a href="#" className="flex flex-col items-center justify-center p-4 bg-white/5 border border-white/5 rounded-xl hover:bg-white/10 transition-all">
+              <span className="text-lg mb-1">🌍</span>
+              <span className="text-[10px] font-bold text-slate-400">RELIEF PROJECT</span>
+            </a>
+          </div>
         </div>
 
-        {/* 下選單：其他入口 */}
-        <div className="grid grid-cols-2 gap-3 mt-4">
-          <button className="bg-slate-800/50 hover:bg-slate-700 p-3 rounded-xl border border-white/5 text-[10px] font-bold tracking-tighter">
-            💰 買賣藍寶石 (OTC)
-          </button>
-          <button className="bg-slate-800/50 hover:bg-slate-700 p-3 rounded-xl border border-white/5 text-[10px] font-bold tracking-tighter">
-            🛡️ 認證/領取 100 積分
-          </button>
-          <button className="bg-slate-800/50 hover:bg-slate-700 p-3 rounded-xl border border-white/5 text-[10px] font-bold tracking-tighter col-span-2">
-            🌍 Starmaker On-Chain Emergency Relief
-          </button>
+        {/* 底部頁腳 */}
+        <div className="mt-10 text-center">
+          <p className="text-[9px] text-slate-600 font-bold tracking-[0.5em] uppercase">
+            Decentralized Identity Verification • World ID V2
+          </p>
         </div>
       </div>
-      
-      <p className="mt-8 text-slate-600 text-[10px] font-bold tracking-[0.4em]">TW_SPWU_ZH PROTOCOL v2.0</p>
     </div>
   );
 }
