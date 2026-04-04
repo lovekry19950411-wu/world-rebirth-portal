@@ -24,8 +24,8 @@ export default function Home() {
   const handleEmailSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!isVerified) return setMessage('❌ 請先執行重生驗證');
+    if (!email) return setMessage('❌ 請輸入有效的電子信箱');
     setMessage(`📧 信箱 ${email} 已與 WLD-ID 綁定成功！`);
-    // 這裡未來可以對接你的 Google Sheets API
   };
 
   // 3. 幸運轉盤邏輯
@@ -63,7 +63,7 @@ export default function Home() {
             </div>
           </div>
 
-          {/* 第一步：World ID 驗證 */}
+          {/* 第一步：World ID 驗證 (已修正 TypeScript 類型報錯) */}
           <section style={{ marginBottom: '30px' }}>
             <IDKitWidget
               app_id="app_staging_083652c77605f6396f4244031649646b"
@@ -71,8 +71,12 @@ export default function Home() {
               onSuccess={handleVerifySuccess}
               verification_level={VerificationLevel.Device}
             >
-              {({ open }) => (
-                <button onClick={open} disabled={isVerified} style={{ width: '100%', padding: '18px', backgroundColor: isVerified ? '#1e293b' : '#3b82f6', borderRadius: '15px', color: 'white', fontWeight: 900, cursor: 'pointer', border: 'none' }}>
+              {({ open }: { open: () => void }) => (
+                <button 
+                  onClick={open} 
+                  disabled={isVerified} 
+                  style={{ width: '100%', padding: '18px', backgroundColor: isVerified ? '#1e293b' : '#3b82f6', borderRadius: '15px', color: 'white', fontWeight: 900, cursor: isVerified ? 'default' : 'pointer', border: 'none' }}
+                >
                   {isVerified ? '✓ 驗證已完成' : '1. 執行重生驗證 (World ID)'}
                 </button>
               )}
@@ -90,33 +94,45 @@ export default function Home() {
                 disabled={!isVerified}
                 style={{ flex: 1, padding: '15px', borderRadius: '12px', border: '1px solid #1e293b', background: '#0f172a', color: 'white' }}
               />
-              <button type="submit" disabled={!isVerified} style={{ padding: '0 20px', backgroundColor: '#3b82f6', borderRadius: '12px', border: 'none', color: 'white', cursor: 'pointer' }}>提交</button>
+              <button 
+                type="submit" 
+                disabled={!isVerified} 
+                style={{ padding: '0 20px', backgroundColor: isVerified ? '#3b82f6' : '#1e293b', borderRadius: '12px', border: 'none', color: 'white', cursor: isVerified ? 'pointer' : 'default' }}
+              >
+                提交
+              </button>
             </form>
           </section>
 
           {/* 第三步：幸運轉盤 */}
           <section style={{ textAlign: 'center', background: 'rgba(59,130,246,0.05)', padding: '30px', borderRadius: '25px', opacity: isVerified ? 1 : 0.3 }}>
-            <div style={{ fontSize: '50px', marginBottom: '20px', animation: isSpinning ? 'spin 1s infinite linear' : 'none' }}>
+            <div style={{ fontSize: '50px', marginBottom: '20px', animation: isSpinning ? 'spin 1s infinite linear' : 'none', display: 'inline-block' }}>
               {isSpinning ? '🌀' : '💎'}
             </div>
-            <button onClick={startSpin} disabled={!isVerified || isSpinning} style={{ width: '100%', padding: '15px', background: 'linear-gradient(90deg, #3b82f6, #2563eb)', border: 'none', borderRadius: '12px', color: 'white', fontWeight: 900, cursor: 'pointer' }}>
+            <button 
+              onClick={startSpin} 
+              disabled={!isVerified || isSpinning} 
+              style={{ width: '100%', padding: '15px', background: isVerified ? 'linear-gradient(90deg, #3b82f6, #2563eb)' : '#1e293b', border: 'none', borderRadius: '12px', color: 'white', fontWeight: 900, cursor: (isVerified && !isSpinning) ? 'pointer' : 'default' }}
+            >
               {isSpinning ? '能量抽取中...' : '2. 啟動能量轉盤'}
             </button>
           </section>
 
           {/* 救援連結 */}
           <div style={{ marginTop: '30px', textAlign: 'center' }}>
-            <a href="https://giveth.io/project/starmaker-taiwan-on-chain-emergency-relief" target="_blank" style={{ color: '#475569', fontSize: '10px', textDecoration: 'none' }}>
+            <a href="https://giveth.io/project/starmaker-taiwan-on-chain-emergency-relief" target="_blank" rel="noopener noreferrer" style={{ color: '#475569', fontSize: '10px', textDecoration: 'none' }}>
               🌐 查看鏈上救援網絡節點
             </a>
           </div>
 
           {/* 訊息反饋 */}
-          {message && (
-            <div style={{ marginTop: '20px', padding: '12px', backgroundColor: 'rgba(59,130,246,0.1)', borderRadius: '10px', fontSize: '11px', textAlign: 'center', color: '#93c5fd' }}>
-              {message}
-            </div>
-          )}
+          <div style={{ height: '40px', marginTop: '20px' }}>
+            {message && (
+              <div style={{ padding: '12px', backgroundColor: 'rgba(59,130,246,0.1)', borderRadius: '10px', fontSize: '11px', textAlign: 'center', color: '#93c5fd' }}>
+                {message}
+              </div>
+            )}
+          </div>
         </div>
       </main>
 
