@@ -1,102 +1,128 @@
 import React, { useState, useEffect } from 'react';
 import Head from 'next/head';
+import { IDKitWidget, ISuccessResult, VerificationLevel } from '@worldcoin/idkit';
 
 export default function Home() {
-  const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState('');
   const [mounted, setMounted] = useState(false);
+  const [isVerified, setIsVerified] = useState(false);
+  const [nullifier, setNullifier] = useState('0x8b...f2e9');
+  const [email, setEmail] = useState('');
+  const [message, setMessage] = useState('');
+  const [isSpinning, setIsSpinning] = useState(false);
+  const [power, setPower] = useState(100.0);
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  useEffect(() => { setMounted(true); }, []);
 
-  const handleAction = (type: string) => {
-    setLoading(true);
-    const logMap: Record<string, string> = {
-      lottery: '⚡ [SYSTEM] 正在驗證 World ID 零知識證明...',
-      otc: '📊 [DATA] 正在獲取藍寶石流動性池數據...',
-      relief: '🌍 [NETWORK] 正在連結全球救援協議節點...'
-    };
-    setMessage(logMap[type] || '處理中...');
+  // 1. World ID 驗證成功：解鎖信箱與轉盤
+  const handleVerifySuccess = (result: ISuccessResult) => {
+    setNullifier(result.nullifier_hash.substring(0, 10) + "...");
+    setIsVerified(true);
+    setMessage('✅ 真人身分確認！信箱登記與轉盤功能已解鎖。');
+  };
+
+  // 2. 信箱登記邏輯
+  const handleEmailSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!isVerified) return setMessage('❌ 請先執行重生驗證');
+    setMessage(`📧 信箱 ${email} 已與 WLD-ID 綁定成功！`);
+    // 這裡未來可以對接你的 Google Sheets API
+  };
+
+  // 3. 幸運轉盤邏輯
+  const startSpin = () => {
+    if (!isVerified) return setMessage('❌ 只有驗證過的真人才可抽取重生能量');
+    setIsSpinning(true);
+    setMessage('🌀 正在抽取藍寶石重生能量...');
     
     setTimeout(() => {
-      setLoading(false);
-      setMessage(`🟢 成功：${type === 'lottery' ? '重生能量提取成功' : '鏈上同步完成'}`);
-    }, 1500);
+      const gain = Math.floor(Math.random() * 50) + 10;
+      setPower(prev => prev + gain);
+      setIsSpinning(false);
+      setMessage(`💎 抽取成功！獲得 ${gain} 能量點。`);
+    }, 2000);
   };
 
   if (!mounted) return null;
 
   return (
-    <div style={{ backgroundColor: '#05070a', color: '#f8fafc', minHeight: '100vh', fontFamily: 'monospace', position: 'relative', overflow: 'hidden' }}>
-      <Head>
-        <title>SAPPHIRE PROTOCOL | World Chain</title>
-      </Head>
+    <div style={{ backgroundColor: '#05070a', color: '#f8fafc', minHeight: '100vh', fontFamily: 'monospace' }}>
+      <Head><title>SAPPHIRE REBORN | 藍寶石協議</title></Head>
 
-      <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none' }}>
-        <div style={{ position: 'absolute', top: '-10%', left: '-5%', width: '50%', height: '50%', background: 'radial-gradient(circle, rgba(59,130,246,0.1) 0%, transparent 75%)', filter: 'blur(80px)' }} />
-      </div>
-
-      <main style={{ position: 'relative', zIndex: 10, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', padding: '24px' }}>
-        <div style={{ width: '100%', maxWidth: '480px' }}>
+      <main style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', padding: '20px' }}>
+        <div style={{ width: '100%', maxWidth: '450px', background: 'rgba(15, 17, 26, 0.95)', border: '1px solid rgba(59,130,246,0.2)', borderRadius: '40px', padding: '40px', boxShadow: '0 0 50px rgba(0,0,0,0.5)' }}>
           
-          <div style={{ backgroundColor: 'rgba(15, 17, 26, 0.9)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '50px', padding: '50px', backdropFilter: 'blur(30px)', boxShadow: '0 30px 60px -15px rgba(0,0,0,0.8)' }}>
-            
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '50px' }}>
-              <div>
-                <h1 style={{ fontSize: '22px', fontWeight: 900, color: 'white', letterSpacing: '0.05em', margin: 0 }}>
-                  SAPPHIRE <span style={{ color: '#3b82f6' }}>PROTOCOL</span>
-                </h1>
-                <p style={{ fontSize: '10px', color: '#475569', letterSpacing: '0.1em', marginTop: '12px' }}>
-                  WLD-ID: 0x8b...f2e9 {/* 這裡顯示 WLD 唯一身份格式 */}
-                </p>
-              </div>
-              <div style={{ textAlign: 'right' }}>
-                <p style={{ fontSize: '8px', color: '#3b82f6', fontWeight: 900, marginBottom: '8px' }}>POWER</p>
-                <div style={{ backgroundColor: 'rgba(59,130,246,0.1)', padding: '8px 16px', borderRadius: '100px', border: '1px solid rgba(59,130,246,0.2)' }}>
-                  <span style={{ fontSize: '18px', fontWeight: 900, color: 'white' }}>100.0</span>
-                </div>
-              </div>
+          {/* 頂部身分欄 */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '40px' }}>
+            <div>
+              <h1 style={{ fontSize: '20px', fontWeight: 900 }}>SAPPHIRE <span style={{ color: '#3b82f6' }}>REBORN</span></h1>
+              <p style={{ fontSize: '10px', color: '#475569' }}>UID: {nullifier}</p>
             </div>
-
-            <div style={{ background: 'linear-gradient(180deg, rgba(59,130,246,0.05) 0%, transparent 100%)', border: '1px solid rgba(59,130,246,0.1)', borderRadius: '35px', padding: '35px', marginBottom: '35px', textAlign: 'center' }}>
-              <div style={{ fontSize: '64px', marginBottom: '25px', filter: 'drop-shadow(0 0 20px rgba(59,130,246,0.4))' }}>💎</div>
-              <h2 style={{ fontSize: '10px', fontWeight: 800, color: '#64748b', letterSpacing: '0.4em', marginBottom: '35px' }}>EXTRACT ENERGY</h2>
-              
-              <button 
-                onClick={() => handleAction('lottery')}
-                disabled={loading}
-                style={{ width: '100%', padding: '22px', backgroundColor: '#3b82f6', color: 'white', border: 'none', borderRadius: '22px', fontWeight: 900, fontSize: '15px', cursor: loading ? 'wait' : 'pointer', boxShadow: '0 10px 30px rgba(59,130,246,0.3)' }}
-              >
-                {loading ? 'VERIFYING...' : 'EXECUTE PROTOCOL'}
-              </button>
-            </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-              <button onClick={() => handleAction('otc')} style={{ padding: '25px 15px', background: 'rgba(255,255,255,0.01)', border: '1px solid rgba(255,255,255,0.03)', borderRadius: '28px', cursor: 'pointer' }}>
-                <div style={{ fontSize: '24px', marginBottom: '10px' }}>🏛️</div>
-                <span style={{ fontSize: '9px', fontWeight: 900, color: '#475569' }}>LIQUIDITY</span>
-              </button>
-              <button onClick={() => handleAction('relief')} style={{ padding: '25px 15px', background: 'rgba(255,255,255,0.01)', border: '1px solid rgba(255,255,255,0.03)', borderRadius: '28px', cursor: 'pointer' }}>
-                <div style={{ fontSize: '24px', marginBottom: '10px' }}>🌐</div>
-                <span style={{ fontSize: '9px', fontWeight: 900, color: '#475569' }}>NETWORK</span>
-              </button>
-            </div>
-
-            <div style={{ height: '55px', marginTop: '35px' }}>
-              {message && (
-                <div style={{ padding: '15px', backgroundColor: 'rgba(59,130,246,0.05)', border: '1px solid rgba(59,130,246,0.1)', borderRadius: '18px', fontSize: '10px', textAlign: 'center', color: '#93c5fd' }}>
-                  {message}
-                </div>
-              )}
+            <div style={{ textAlign: 'right' }}>
+              <span style={{ fontSize: '8px', color: '#3b82f6' }}>ENERGY</span>
+              <div style={{ fontSize: '24px', fontWeight: 900 }}>{power.toFixed(2)}</div>
             </div>
           </div>
 
-          <footer style={{ marginTop: '50px', textAlign: 'center', opacity: 0.2 }}>
-            <p style={{ fontSize: '9px', letterSpacing: '0.6em', fontWeight: 900, color: 'white' }}>SAPPHIRE PROTOCOL v4.0</p>
-          </footer>
+          {/* 第一步：World ID 驗證 */}
+          <section style={{ marginBottom: '30px' }}>
+            <IDKitWidget
+              app_id="app_staging_083652c77605f6396f4244031649646b"
+              action="reborn-verify"
+              onSuccess={handleVerifySuccess}
+              verification_level={VerificationLevel.Device}
+            >
+              {({ open }) => (
+                <button onClick={open} disabled={isVerified} style={{ width: '100%', padding: '18px', backgroundColor: isVerified ? '#1e293b' : '#3b82f6', borderRadius: '15px', color: 'white', fontWeight: 900, cursor: 'pointer', border: 'none' }}>
+                  {isVerified ? '✓ 驗證已完成' : '1. 執行重生驗證 (World ID)'}
+                </button>
+              )}
+            </IDKitWidget>
+          </section>
+
+          {/* 第二步：信箱登記 */}
+          <section style={{ marginBottom: '30px', opacity: isVerified ? 1 : 0.3 }}>
+            <form onSubmit={handleEmailSubmit} style={{ display: 'flex', gap: '10px' }}>
+              <input 
+                type="email" 
+                placeholder="輸入信箱登記..." 
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                disabled={!isVerified}
+                style={{ flex: 1, padding: '15px', borderRadius: '12px', border: '1px solid #1e293b', background: '#0f172a', color: 'white' }}
+              />
+              <button type="submit" disabled={!isVerified} style={{ padding: '0 20px', backgroundColor: '#3b82f6', borderRadius: '12px', border: 'none', color: 'white', cursor: 'pointer' }}>提交</button>
+            </form>
+          </section>
+
+          {/* 第三步：幸運轉盤 */}
+          <section style={{ textAlign: 'center', background: 'rgba(59,130,246,0.05)', padding: '30px', borderRadius: '25px', opacity: isVerified ? 1 : 0.3 }}>
+            <div style={{ fontSize: '50px', marginBottom: '20px', animation: isSpinning ? 'spin 1s infinite linear' : 'none' }}>
+              {isSpinning ? '🌀' : '💎'}
+            </div>
+            <button onClick={startSpin} disabled={!isVerified || isSpinning} style={{ width: '100%', padding: '15px', background: 'linear-gradient(90deg, #3b82f6, #2563eb)', border: 'none', borderRadius: '12px', color: 'white', fontWeight: 900, cursor: 'pointer' }}>
+              {isSpinning ? '能量抽取中...' : '2. 啟動能量轉盤'}
+            </button>
+          </section>
+
+          {/* 救援連結 */}
+          <div style={{ marginTop: '30px', textAlign: 'center' }}>
+            <a href="https://giveth.io/project/starmaker-taiwan-on-chain-emergency-relief" target="_blank" style={{ color: '#475569', fontSize: '10px', textDecoration: 'none' }}>
+              🌐 查看鏈上救援網絡節點
+            </a>
+          </div>
+
+          {/* 訊息反饋 */}
+          {message && (
+            <div style={{ marginTop: '20px', padding: '12px', backgroundColor: 'rgba(59,130,246,0.1)', borderRadius: '10px', fontSize: '11px', textAlign: 'center', color: '#93c5fd' }}>
+              {message}
+            </div>
+          )}
         </div>
       </main>
+
+      <style jsx global>{`
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+      `}</style>
     </div>
   );
 }
