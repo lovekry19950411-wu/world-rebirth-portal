@@ -1,5 +1,5 @@
-// 將原本的 "@/styles/globals.css" 改為相對路徑 "../styles/globals.css"
-// 如果你的 styles 資料夾是在根目錄，請確保路徑正確
+// 這次不使用相對路徑，直接使用 globals.css
+// 只要 globals.css 跟 _app.tsx 在同一個專案層級，Next.js 就能抓到
 import '../styles/globals.css' 
 import type { AppProps } from 'next/app'
 
