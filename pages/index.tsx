@@ -6,121 +6,111 @@ export default function Home() {
   const [message, setMessage] = useState('');
   const [mounted, setMounted] = useState(false);
 
-  // 確保客戶端渲染以避免 hydration 錯誤
+  // 確保客戶端渲染，防止 Hydration 錯誤
   useEffect(() => {
     setMounted(true);
   }, []);
 
   const handleAction = (type: string) => {
     setLoading(true);
-    const msgs: Record<string, string> = {
-      lottery: '⚡ 正在連結 World Chain 節點驗證身份...',
-      otc: '📊 正在載入 OTC 交易深度表...',
-      relief: '🌍 正在同步 On-Chain 救助數據...'
+    const logMap: Record<string, string> = {
+      lottery: '⚡ [SYSTEM] 正在調用 World Chain 身份驗證合約...',
+      otc: '📊 [DATA] 正在同步鏈上 OTC 交易深度數據...',
+      relief: '🌍 [NETWORK] 正在連結 Starmaker 救助計畫存證節點...'
     };
-    setMessage(msgs[type] || '處理中...');
+    setMessage(logMap[type] || '處理中...');
     
     setTimeout(() => {
       setLoading(false);
-      setMessage(`🟢 執行成功：${type === 'lottery' ? '重生能量已注入' : '模組已準備就緒'}`);
+      setMessage(`🟢 成功：${type === 'lottery' ? '重生能量注入成功，請確認錢包' : '數據庫同步完成'}`);
     }, 1500);
   };
 
   if (!mounted) return null;
 
   return (
-    <div className="min-h-screen bg-[#05070a] text-slate-200 font-mono selection:bg-orange-500/30">
+    <div style={{ backgroundColor: '#05070a', color: '#f8fafc', minHeight: '100vh', fontFamily: 'monospace', position: 'relative', overflow: 'hidden' }}>
       <Head>
-        <title>Wu Sheng-ping | Reborn Portal</title>
+        <title>Wu Sheng-ping | TW_SPWU_ZH Portal</title>
+        <meta name="description" content="Official Reborn Portal on World Chain" />
       </Head>
 
-      {/* 背景動態光暈 */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-[10%] -left-[10%] w-[40%] h-[40%] bg-orange-500/10 blur-[120px] rounded-full animate-pulse" />
-        <div className="absolute bottom-[10%] right-[10%] w-[30%] h-[30%] bg-blue-500/5 blur-[100px] rounded-full" />
+      {/* 動態背景裝飾：增加視覺複雜度 */}
+      <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none' }}>
+        <div style={{ position: 'absolute', top: '-10%', left: '-5%', width: '50%', height: '50%', background: 'radial-gradient(circle, rgba(249,115,22,0.1) 0%, transparent 75%)', filter: 'blur(80px)' }} />
+        <div style={{ position: 'absolute', bottom: '0', right: '0', width: '40%', height: '40%', background: 'radial-gradient(circle, rgba(59,130,246,0.05) 0%, transparent 75%)', filter: 'blur(100px)' }} />
       </div>
 
-      <main className="relative z-10 flex flex-col items-center justify-center min-h-screen p-6">
-        <div className="w-full max-w-lg">
+      <main style={{ position: 'relative', zIndex: 10, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', padding: '24px' }}>
+        <div style={{ width: '100%', maxWidth: '480px' }}>
           
-          {/* 頂部裝飾條 */}
-          <div className="flex items-center gap-2 mb-8 opacity-50">
-            <div className="h-[1px] flex-1 bg-gradient-to-r from-transparent to-white/20" />
-            <span className="text-[10px] tracking-[0.4em] uppercase">Identity Verified</span>
-            <div className="h-[1px] flex-1 bg-gradient-to-l from-transparent to-white/20" />
+          {/* 頂部裝飾 */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '40px', opacity: 0.3 }}>
+            <div style={{ height: '1px', flex: 1, background: 'linear-gradient(to right, transparent, white)' }} />
+            <span style={{ fontSize: '9px', letterSpacing: '0.6em', textTransform: 'uppercase' }}>Verified Human Node</span>
+            <div style={{ height: '1px', flex: 1, background: 'linear-gradient(to left, transparent, white)' }} />
           </div>
 
-          <div className="bg-[#0f111a]/80 border border-white/10 rounded-[2.5rem] p-10 backdrop-blur-3xl shadow-2xl">
+          {/* 主面板 */}
+          <div style={{ backgroundColor: 'rgba(15, 17, 26, 0.9)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '50px', padding: '50px', backdropFilter: 'blur(30px)', boxShadow: '0 30px 60px -15px rgba(0,0,0,0.8)' }}>
             
-            {/* 個人品牌頭部 */}
-            <div className="flex justify-between items-start mb-12">
+            {/* 個人資料標題區 */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '50px' }}>
               <div>
-                <h1 className="text-3xl font-black text-white tracking-tighter leading-none mb-2">
-                  Wu Sheng-ping <span className="text-orange-500">ZH</span>
+                <h1 style={{ fontSize: '26px', fontWeight: 900, color: 'white', letterSpacing: '-0.03em', margin: 0 }}>
+                  Wu Sheng-ping <span style={{ color: '#f97316' }}>ZH</span>
                 </h1>
-                <div className="flex items-center gap-2">
-                  <span className="w-2 h-2 bg-green-500 rounded-full animate-ping" />
-                  <p className="text-[10px] text-slate-500 tracking-widest uppercase font-bold">Node: TW_SPWU_ZH</p>
-                </div>
+                <p style={{ fontSize: '10px', color: '#475569', letterSpacing: '0.2em', marginTop: '12px', fontWeight: 'bold' }}>
+                  UID: TW_SPWU_ZH_2026
+                </p>
               </div>
-              <div className="text-right">
-                <p className="text-[10px] text-orange-500 font-black tracking-widest mb-1 uppercase">Reborn Pts</p>
-                <div className="bg-white/5 px-4 py-1 rounded-full border border-white/5">
-                  <span className="text-xl font-black text-white italic">100.00</span>
+              <div style={{ textAlign: 'right' }}>
+                <p style={{ fontSize: '8px', color: '#f97316', fontWeight: 900, letterSpacing: '0.2em', marginBottom: '8px', textTransform: 'uppercase' }}>Energy Balance</p>
+                <div style={{ backgroundColor: 'rgba(255,255,255,0.04)', padding: '8px 20px', borderRadius: '100px', border: '1px solid rgba(255,255,255,0.08)' }}>
+                  <span style={{ fontSize: '22px', fontWeight: 900, color: 'white', fontStyle: 'italic' }}>100.00</span>
                 </div>
               </div>
             </div>
 
-            {/* 核心功能：重生輪盤 */}
-            <div className="group relative bg-gradient-to-b from-white/[0.03] to-transparent border border-white/5 rounded-3xl p-8 mb-8 overflow-hidden transition-all hover:border-orange-500/30">
-              <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-30 transition-opacity">
-                <span className="text-6xl italic font-black">REBORN</span>
-              </div>
+            {/* 重生能量按鈕區 */}
+            <div style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.02) 0%, transparent 100%)', border: '1px solid rgba(255,255,255,0.04)', borderRadius: '35px', padding: '35px', marginBottom: '35px', textAlign: 'center' }}>
+              <div style={{ fontSize: '72px', marginBottom: '25px', filter: 'drop-shadow(0 0 20px rgba(249,115,22,0.5))' }}>💎</div>
+              <h2 style={{ fontSize: '10px', fontWeight: 800, color: '#64748b', letterSpacing: '0.5em', marginBottom: '35px', textTransform: 'uppercase' }}>Sapphire Reborn Energy</h2>
               
-              <div className="relative z-10 text-center">
-                <div className="text-6xl mb-6 drop-shadow-[0_0_20px_rgba(249,115,22,0.4)] group-hover:scale-110 transition-transform duration-500">💎</div>
-                <h2 className="text-sm font-bold text-slate-400 mb-6 tracking-[0.3em] uppercase">Sapphire Energy Portal</h2>
-                
-                <button 
-                  onClick={() => handleAction('lottery')}
-                  disabled={loading}
-                  className="w-full py-5 bg-orange-500 hover:bg-orange-400 text-black font-black rounded-2xl shadow-[0_0_40px_rgba(249,115,22,0.2)] active:scale-95 transition-all disabled:opacity-50 disabled:cursor-wait"
-                >
-                  {loading ? 'EXECUTING PROTOCOL...' : 'LAUNCH REBORN'}
-                </button>
-              </div>
-            </div>
-
-            {/* 次要功能入口 */}
-            <div className="grid grid-cols-2 gap-4">
-              <button onClick={() => handleAction('otc')} className="flex flex-col items-center p-6 bg-white/[0.02] border border-white/5 rounded-3xl hover:bg-white/[0.05] hover:border-white/10 transition-all">
-                <span className="text-2xl mb-2">📊</span>
-                <span className="text-[10px] font-black text-slate-400 tracking-widest uppercase">OTC Desk</span>
-              </button>
-              <button onClick={() => handleAction('relief')} className="flex flex-col items-center p-6 bg-white/[0.02] border border-white/5 rounded-3xl hover:bg-white/[0.05] hover:border-white/10 transition-all">
-                <span className="text-2xl mb-2">🌍</span>
-                <span className="text-[10px] font-black text-slate-400 tracking-widest uppercase">Relief Plan</span>
+              <button 
+                onClick={() => handleAction('lottery')}
+                disabled={loading}
+                style={{ width: '100%', padding: '24px', backgroundColor: '#f97316', color: 'black', border: 'none', borderRadius: '22px', fontWeight: 900, fontSize: '15px', letterSpacing: '0.15em', cursor: loading ? 'wait' : 'pointer', boxShadow: '0 10px 40px rgba(249,115,22,0.3)', transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)' }}
+              >
+                {loading ? 'PROCESSING...' : 'EXECUTE REBORN'}
               </button>
             </div>
 
-            {/* 動態訊息欄 */}
-            <div className="h-12 mt-8">
+            {/* 底部功能矩陣 */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+              <button onClick={() => handleAction('otc')} style={{ padding: '25px 15px', background: 'rgba(255,255,255,0.01)', border: '1px solid rgba(255,255,255,0.03)', borderRadius: '28px', cursor: 'pointer', transition: '0.2s' }}>
+                <div style={{ fontSize: '24px', marginBottom: '10px' }}>📊</div>
+                <span style={{ fontSize: '9px', fontWeight: 900, color: '#475569', letterSpacing: '0.15em' }}>OTC DESK</span>
+              </button>
+              <button onClick={() => handleAction('relief')} style={{ padding: '25px 15px', background: 'rgba(255,255,255,0.01)', border: '1px solid rgba(255,255,255,0.03)', borderRadius: '28px', cursor: 'pointer', transition: '0.2s' }}>
+                <div style={{ fontSize: '24px', marginBottom: '10px' }}>🌍</div>
+                <span style={{ fontSize: '9px', fontWeight: 900, color: '#475569', letterSpacing: '0.15em' }}>RELIEF HUB</span>
+              </button>
+            </div>
+
+            {/* 系統訊息終端 */}
+            <div style={{ height: '55px', marginTop: '35px' }}>
               {message && (
-                <div className="p-3 bg-orange-500/10 border border-orange-500/20 rounded-xl text-[10px] text-center text-orange-200 animate-in fade-in slide-in-from-bottom-2">
+                <div style={{ padding: '15px', backgroundColor: 'rgba(249,115,22,0.08)', border: '1px solid rgba(249,115,22,0.15)', borderRadius: '18px', fontSize: '10px', textAlign: 'center', color: '#fdba74' }}>
                   {message}
                 </div>
               )}
             </div>
           </div>
 
-          {/* 頁尾 */}
-          <footer className="mt-12 text-center">
-            <p className="text-[9px] text-slate-700 font-bold tracking-[0.5em] uppercase mb-2">
-              On-Chain Identity Verification Protocol v3.0
-            </p>
-            <p className="text-[8px] text-slate-800 tracking-tighter">
-              © 2026 WU SHENG-PING. DEPLOYED ON WORLD CHAIN.
-            </p>
+          <footer style={{ marginTop: '50px', textAlign: 'center', opacity: 0.2 }}>
+            <p style={{ fontSize: '9px', letterSpacing: '0.7em', fontWeight: 900, color: 'white', marginBottom: '10px' }}>TW_SPWU_ZH PROTOCOL v3.2</p>
+            <p style={{ fontSize: '8px', color: '#475569' }}>AUTHORIZED ACCESS ONLY • WORLD CHAIN MAINNET</p>
           </footer>
         </div>
       </main>
