@@ -90,7 +90,8 @@ export default function Home() {
               onSuccess={handleVerifySuccess}
               verification_level={VerificationLevel.Device}
             >
-              {({ open }) => (
+              {/* 修正後的 open 參數類型 */}
+              {({ open }: { open: () => void }) => (
                 <button onClick={open} disabled={isVerified} style={{ width: '100%', padding: '20px', backgroundColor: isVerified ? '#1e293b' : '#3b82f6', borderRadius: '18px', color: 'white', fontWeight: 900, cursor: isVerified ? 'default' : 'pointer', border: 'none', fontSize: '16px', transition: 'all 0.3s' }}>
                   {isVerified ? '✓ 身分驗證已完成' : '1. 驗證真人領取抽獎券'}
                 </button>
@@ -109,22 +110,4 @@ export default function Home() {
           </section>
 
           <section style={{ textAlign: 'center', background: 'radial-gradient(circle, rgba(59,130,246,0.1) 0%, rgba(5,7,10,0) 70%)', padding: '40px 20px', borderRadius: '35px', border: '1px solid rgba(59,130,246,0.1)', opacity: isVerified ? 1 : 0.3 }}>
-            <div style={{ fontSize: '70px', marginBottom: '25px', animation: isSpinning ? 'spin 1s infinite linear' : 'none', display: 'inline-block', filter: 'drop-shadow(0 0 15px #3b82f6)' }}>💎</div>
-            <button onClick={startSpin} disabled={!isVerified || isSpinning} style={{ width: '100%', padding: '20px', background: isVerified ? 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)' : '#1e293b', border: 'none', borderRadius: '18px', color: 'white', fontWeight: 900, fontSize: '18px', boxShadow: isVerified ? '0 10px 30px rgba(37,99,235,0.4)' : 'none', cursor: 'pointer' }}>
-              {isSpinning ? '能量抽取中...' : '2. 啟動空投轉盤'}
-            </button>
-          </section>
-
-          <div style={{ minHeight: '60px', marginTop: '25px' }}>
-            {message && <div style={{ padding: '15px', backgroundColor: 'rgba(59,130,246,0.1)', borderRadius: '15px', fontSize: '12px', textAlign: 'center', color: '#93c5fd', border: '1px solid rgba(59,130,246,0.2)' }}>{message}</div>}
-          </div>
-
-          <footer style={{ textAlign: 'center', marginTop: '20px', opacity: 0.5 }}>
-             <p style={{ fontSize: '9px', color: '#475569' }}>系統自動化運行中：Next.js + Google Sheets + World ID</p>
-          </footer>
-        </div>
-      </main>
-      <style jsx global>{` @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } } `}</style>
-    </div>
-  );
-}
+            <div style={{ fontSize: '70px', marginBottom: '25px', animation: isSpinning ? 'spin 1s infinite linear' : 'none', display: 'inline-block', filter: '
