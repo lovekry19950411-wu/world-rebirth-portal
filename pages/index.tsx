@@ -1,82 +1,144 @@
-import { useState, useEffect } from "react";
-import { MiniKit } from "@worldcoin/minikit-js";
+import React, { useState, useEffect } from 'react';
+import Head from 'next/head';
+import { IDKitWidget, ISuccessResult, VerificationLevel } from '@worldcoin/idkit';
 
-// --- 配置區 ---
-const TWITTER_ID = "G9Yeu21"; 
-
-export default function SapphireReborn() {
-  const [userAddress, setUserAddress] = useState<string>("");
-  const [step1Done, setStep1Done] = useState(false);
-  const [step2Done, setStep2Done] = useState(false);
-  const [power, setPower] = useState(100);
+export default function Home() {
+  const [mounted, setMounted] = useState(false);
+  const [isVerified, setIsVerified] = useState(false);
+  const [nullifier, setNullifier] = useState('0x8b...f2e9');
+  const [email, setEmail] = useState('');
+  const [message, setMessage] = useState('');
   const [isSpinning, setIsSpinning] = useState(false);
-  const [email, setEmail] = useState("");
+  const [power, setPower] = useState(100.0);
 
-  useEffect(() => {
-    if (typeof window !== "undefined" && MiniKit.isInstalled()) {
-      setUserAddress(MiniKit.walletAddress || "");
-    }
-  }, []);
+  useEffect(() => { setMounted(true); }, []);
 
-  const handleVerify = async () => {
-    try {
-      // 這裡直接用 'device' 字串，不再導入 VerificationLevel
-      const { finalPayload } = await MiniKit.verify({
-        action: "sapphire-auth",
-        verification_level: 'device' as any, 
-      });
-      if (finalPayload.status === "success") {
-        setStep1Done(true);
-      }
-    } catch (e) {
-      console.error("驗證失敗", e);
-    }
+  // 1. World ID 驗證成功邏輯
+  const handleVerifySuccess = (result: ISuccessResult) => {
+    setNullifier(result.nullifier_hash.substring(0, 10) + "...");
+    setIsVerified(true);
+    setMessage('✅ 真人重生驗證成功！功能已全數解鎖。');
   };
 
-  const handleFollowX = () => {
-    window.open(`https://x.com/intent/follow?screen_name=${TWITTER_ID}`, "_blank");
-    setStep2Done(true);
+  // 2. 信箱登記邏輯
+  const handleEmailSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!isVerified) return setMessage('❌ 請先執行重生驗證');
+    if (!email) return setMessage('❌ 請輸入有效的電子信箱');
+    setMessage(`📧 信箱 ${email} 已與您的 World ID 綁定！`);
   };
 
-  const handleStartSpin = () => {
-    if (!step1Done || !step2Done || isSpinning) return;
+  // 3. 幸運轉盤邏輯
+  const startSpin = () => {
+    if (!isVerified) return setMessage('❌ 只有驗證過的真人才可抽取重生能量');
     setIsSpinning(true);
+    setMessage('🌀 正在從鏈上抽取藍寶石能量...');
+    
     setTimeout(() => {
-      const win = Math.random() > 0.5;
-      setPower((prev) => prev + (win ? 50 : -25));
+      const gain = Math.floor(Math.random() * 50) + 10;
+      setPower(prev => prev + gain);
       setIsSpinning(false);
-      alert(win ? "🔮 重生成功！" : "💀 重生失敗");
-    }, 3000);
+      setMessage(`💎 抽取成功！獲得 ${gain} 能量點。`);
+    }, 2000);
   };
+
+  if (!mounted) return null;
 
   return (
-    <div style={{ backgroundColor: "#0a0f1e", color: "white", minHeight: "100vh", padding: "20px", fontFamily: "sans-serif", display: "flex", flexDirection: "column", alignItems: "center" }}>
-      <header style={{ textAlign: "center", marginBottom: "40px" }}>
-        <h1 style={{ color: "#4d90fe", fontSize: "36px" }}>SAPPHIRE REBORN</h1>
-        <p style={{ opacity: 0.5 }}>{userAddress || "CONNECTED"}</p>
-        <div style={{ fontSize: "64px", fontWeight: "900", marginTop: "20px" }}>{power}</div>
-      </header>
+    <div style={{ backgroundColor: '#05070a', color: '#f8fafc', minHeight: '100vh', fontFamily: 'monospace' }}>
+      <Head><title>SAPPHIRE REBORN | 藍寶石協議</title></Head>
 
-      <main style={{ width: "100%", maxWidth: "400px", display: "flex", flexDirection: "column", gap: "15px" }}>
-        <button onClick={handleVerify} disabled={step1Done} style={{ padding: "18px", borderRadius: "10px", backgroundColor: step1Done ? "#1e293b" : "#334155", border: "none", color: "white", fontWeight: "bold", cursor: "pointer" }}>
-          {step1Done ? "✓ 驗證完成" : "1. World ID 身分驗證"}
-        </button>
+      <main style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', padding: '20px' }}>
+        <div style={{ width: '100%', maxWidth: '450px', background: 'rgba(15, 17, 26, 0.95)', border: '1px solid rgba(59,130,246,0.2)', borderRadius: '40px', padding: '40px', boxShadow: '0 0 50px rgba(0,0,0,0.5)' }}>
+          
+          {/* 頂部身分欄 */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '40px' }}>
+            <div>
+              <h1 style={{ fontSize: '20px', fontWeight: 900 }}>SAPPHIRE <span style={{ color: '#3b82f6' }}>REBORN</span></h1>
+              <p style={{ fontSize: '10px', color: '#475569' }}>UID: {nullifier}</p>
+            </div>
+            <div style={{ textAlign: 'right' }}>
+              <span style={{ fontSize: '8px', color: '#3b82f6' }}>ENERGY</span>
+              <div style={{ fontSize: '24px', fontWeight: 900 }}>{power.toFixed(2)}</div>
+            </div>
+          </div>
 
-        <div style={{ display: "flex", flexDirection: "column", gap: "10px", backgroundColor: "#111827", padding: "15px", borderRadius: "12px" }}>
-          <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} style={{ width: "100%", padding: "12px", borderRadius: "8px", backgroundColor: "#050a18", border: "1px solid #333", color: "white", boxSizing: "border-box" }} />
-          <button onClick={handleFollowX} disabled={!step1Done || step2Done} style={{ padding: "15px", borderRadius: "10px", backgroundColor: step2Done ? "#1e293b" : "#2563eb", border: "none", color: "white", fontWeight: "bold", cursor: "pointer", opacity: step1Done ? 1 : 0.5 }}>
-            {step2Done ? "✓ 已登記並追蹤 X" : "2. 登記資訊並追蹤 X"}
-          </button>
+          {/* 第一步：World ID 驗證 - 已更新為正式 ID */}
+          <section style={{ marginBottom: '30px' }}>
+            <IDKitWidget
+              app_id="app_f4bf6f2a1ca32e4f9af5f35b529f98f6" 
+              action="reborn-verify"
+              onSuccess={handleVerifySuccess}
+              verification_level={VerificationLevel.Device}
+            >
+              {({ open }: { open: () => void }) => (
+                <button 
+                  onClick={open} 
+                  disabled={isVerified} 
+                  style={{ width: '100%', padding: '18px', backgroundColor: isVerified ? '#1e293b' : '#3b82f6', borderRadius: '15px', color: 'white', fontWeight: 900, cursor: isVerified ? 'default' : 'pointer', border: 'none' }}
+                >
+                  {isVerified ? '✓ 驗證已完成' : '1. 執行重生驗證 (World ID)'}
+                </button>
+              )}
+            </IDKitWidget>
+          </section>
+
+          {/* 第二步：信箱登記 */}
+          <section style={{ marginBottom: '30px', opacity: isVerified ? 1 : 0.3 }}>
+            <form onSubmit={handleEmailSubmit} style={{ display: 'flex', gap: '10px' }}>
+              <input 
+                type="email" 
+                placeholder="輸入信箱登記..." 
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                disabled={!isVerified}
+                style={{ flex: 1, padding: '15px', borderRadius: '12px', border: '1px solid #1e293b', background: '#0f172a', color: 'white' }}
+              />
+              <button 
+                type="submit" 
+                disabled={!isVerified} 
+                style={{ padding: '0 20px', backgroundColor: isVerified ? '#3b82f6' : '#1e293b', borderRadius: '12px', border: 'none', color: 'white', cursor: isVerified ? 'pointer' : 'default' }}
+              >
+                提交
+              </button>
+            </form>
+          </section>
+
+          {/* 第三步：幸運轉盤 */}
+          <section style={{ textAlign: 'center', background: 'rgba(59,130,246,0.05)', padding: '30px', borderRadius: '25px', opacity: isVerified ? 1 : 0.3 }}>
+            <div style={{ fontSize: '50px', marginBottom: '20px', animation: isSpinning ? 'spin 1s infinite linear' : 'none', display: 'inline-block' }}>
+              {isSpinning ? '🌀' : '💎'}
+            </div>
+            <button 
+              onClick={startSpin} 
+              disabled={!isVerified || isSpinning} 
+              style={{ width: '100%', padding: '15px', background: isVerified ? 'linear-gradient(90deg, #3b82f6, #2563eb)' : '#1e293b', border: 'none', borderRadius: '12px', color: 'white', fontWeight: 900, cursor: (isVerified && !isSpinning) ? 'pointer' : 'default' }}
+            >
+              {isSpinning ? '能量抽取中...' : '2. 啟動能量轉盤'}
+            </button>
+          </section>
+
+          {/* 救援連結 */}
+          <div style={{ marginTop: '30px', textAlign: 'center' }}>
+            <a href="https://giveth.io/project/starmaker-taiwan-on-chain-emergency-relief" target="_blank" rel="noopener noreferrer" style={{ color: '#475569', fontSize: '10px', textDecoration: 'none' }}>
+              🌐 查看鏈上救援網絡節點
+            </a>
+          </div>
+
+          {/* 訊息反饋 */}
+          <div style={{ height: '40px', marginTop: '20px' }}>
+            {message && (
+              <div style={{ padding: '12px', backgroundColor: 'rgba(59,130,246,0.1)', borderRadius: '10px', fontSize: '11px', textAlign: 'center', color: '#93c5fd' }}>
+                {message}
+              </div>
+            )}
+          </div>
         </div>
-
-        <div style={{ textAlign: "center", margin: "20px 0", animation: isSpinning ? "spin 1s linear infinite" : "none", fontSize: "60px" }}>💎</div>
-
-        <button onClick={handleStartSpin} disabled={!step1Done || !step2Done || isSpinning} style={{ padding: "20px", borderRadius: "12px", backgroundColor: (step1Done && step2Done) ? "#3b82f6" : "#1e293b", color: "white", fontWeight: "900", border: "none", cursor: "pointer", opacity: (step1Done && step2Done) ? 1 : 0.5 }}>
-          {isSpinning ? "重生中..." : "3. 啟動重生轉盤"}
-        </button>
       </main>
 
-      <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
+      <style jsx global>{`
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+      `}</style>
     </div>
   );
 }
